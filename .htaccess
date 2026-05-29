@@ -1,0 +1,20 @@
+# PUST Help Desk - Apache configuration
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Protect sensitive directories
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# PHP upload limits hint
+php_value upload_max_filesize 5M
+php_value post_max_size 6M

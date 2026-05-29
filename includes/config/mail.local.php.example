@@ -1,0 +1,21 @@
+<?php
+/**
+ * Copy this file to mail.local.php and set your SMTP details.
+ * Keep mail.local.php private because it contains your email password.
+ *
+ * The contact form sends to CONTACT_FORM_EMAIL when CONTACT_FORM_SEND_EMAIL is true.
+ */
+
+define('CONTACT_FORM_SEND_EMAIL', false);
+define('CONTACT_FORM_EMAIL', 'support@pust.edu.so');
+
+// Gmail example:
+// 1. Turn on 2-Step Verification for the Gmail account.
+// 2. Create an App Password.
+// 3. Put the App Password below, not your normal Gmail password.
+define('MAIL_FROM_EMAIL', 'your-email@gmail.com');
+define('MAIL_SMTP_HOST', 'smtp.gmail.com');
+define('MAIL_SMTP_PORT', 587);
+define('MAIL_SMTP_SECURE', 'tls'); // tls, ssl, or none
+define('MAIL_SMTP_USER', 'your-email@gmail.com');
+define('MAIL_SMTP_PASS', 'your-gmail-app-password');

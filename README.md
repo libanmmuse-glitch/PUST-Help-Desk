@@ -1,0 +1,60 @@
+# PUST Help Desk App
+
+A focused PHP/MySQL help desk system for PUST University. The app provides authentication, ticket management, role-based dashboards, departments, notifications, reports, and password reset email through PHPMailer.
+
+## Core Features
+
+- Student, staff, lecturer, and admin dashboards
+- Ticket creation, assignment, replies, attachments, and status tracking
+- Department and category management
+- In-app notifications for ticket events
+- Admin user, department, category, and report pages
+- Secure authentication, CSRF protection, password hashing, and upload validation
+- PHPMailer-based password reset emails
+
+## Requirements
+
+- PHP 8.0+
+- MySQL 5.7+ or MariaDB
+- Apache/XAMPP
+- Composer dependencies installed from `composer.json`
+
+## Setup
+
+1. Place the project in `C:\xampp\htdocs\Help-Desk-App`.
+2. Start Apache and MySQL.
+3. Import `database/pust_helpdesk.sql` in phpMyAdmin.
+4. Update database credentials in `includes/config/database.php`.
+5. Update `APP_URL` in `includes/config/app.php` if your folder or domain changes.
+6. For password reset email, copy `includes/config/mail.local.php.example` to `includes/config/mail.local.php` and enter real SMTP credentials.
+
+## Main Structure
+
+```text
+admin/       Admin panel pages
+api/         AJAX endpoints
+assets/      CSS, JavaScript, images, uploads
+database/    Main SQL schema
+includes/    Config, functions, middleware, templates
+staff/       Staff and lecturer dashboard pages
+student/     Student dashboard pages
+vendor/      Composer dependencies
+```
+
+## Security Notes
+
+- Keep `includes/config/mail.local.php` private.
+- Use HTTPS in production.
+- Keep `display_errors` disabled in production.
+- Use strong database credentials.
+- Keep upload validation enabled.
+
+## Default Admin
+
+The schema includes an admin account:
+
+```text
+admin@pust.edu
+```
+
+Set or reset the password directly in the database using PHP `password_hash()` if needed.
