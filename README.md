@@ -1,6 +1,6 @@
 # PUST Help Desk App
 
-A focused PHP/MySQL help desk system for PUST University. The app provides authentication, ticket management, role-based dashboards, departments, notifications, reports, and password reset email through PHPMailer.
+A focused PHP/MySQL support ticket system for PUST University. The app helps students and staff submit tickets, track progress, receive updates, communicate with administrators, and manage support services through secure role-based dashboards.
 
 ## Core Features
 
