@@ -74,7 +74,7 @@
                     </li>
                 </ul>
                 <p class="pust-footer__hours">
-                    <strong>Office hours:</strong> Saturday – Thursday
+                    <strong>Office hours:</strong> 8:00 AM - 5:30 PM, Saturday - Thursday
                 </p>
             </div>
         </div>

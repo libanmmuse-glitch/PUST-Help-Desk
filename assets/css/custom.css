@@ -801,6 +801,50 @@ html[data-theme="dark"] .dashboard-layout .border-b {
   box-shadow: var(--pust-shadow-hover);
 }
 
+/* About page stat cards */
+.about-stat-card {
+  position: relative;
+  isolation: isolate;
+  animation: aboutStatRise 0.7s ease both;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+.about-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.about-stat-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  border-color: rgba(37, 99, 235, 0.14);
+}
+.about-stat-card:hover::before {
+  opacity: 1;
+}
+.about-stat-icon {
+  animation: aboutIconPulse 3.2s ease-in-out infinite;
+}
+.about-stat-value {
+  animation: aboutCountLift 0.9s ease both;
+}
+@keyframes aboutStatRise {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes aboutIconPulse {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.06); }
+}
+@keyframes aboutCountLift {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .dashboard-layout .text-slate-500,
 .dashboard-layout .text-slate-600 {
   color: var(--dash-muted) !important;
