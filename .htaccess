@@ -3,9 +3,20 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
     # Protect sensitive directories
     RewriteRule ^includes/ - [F,L]
     RewriteRule ^database/ - [F,L]
+
+    # Canonicalize PHP routes to clean URLs
+    RewriteCond %{THE_REQUEST} \s/+([^\s?]+)\.php(?:[\s?]) [NC]
+    RewriteRule ^ /%1 [R=301,L]
+
+    # Serve extensionless routes from matching PHP files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+?)/?$ $1.php [L]
 </IfModule>
 
 # Security headers
@@ -18,3 +29,5 @@ Options -Indexes
 # PHP upload limits hint
 php_value upload_max_filesize 5M
 php_value post_max_size 6M
+
+DirectoryIndex index.php

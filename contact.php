@@ -77,28 +77,28 @@ $guidance = [
 ];
 ?>
 
-<section class="relative overflow-hidden bg-gradient-pust-hero text-white">
-    <div class="absolute inset-0 opacity-30">
-        <div class="absolute -top-20 right-0 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-        <div class="absolute -bottom-28 left-[-4rem] h-80 w-80 rounded-full bg-pust-amber/20 blur-3xl"></div>
+<section class="pust-page-hero relative overflow-hidden border-b border-slate-200">
+    <div class="absolute inset-0 opacity-70">
+        <div class="absolute -top-20 right-0 h-72 w-72 rounded-full bg-pust-primary/10 blur-3xl"></div>
+        <div class="absolute -bottom-28 left-[-4rem] h-80 w-80 rounded-full bg-pust-emerald/10 blur-3xl"></div>
     </div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div class="max-w-2xl">
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/15 border border-white/20 rounded-full text-sm font-medium mb-6 backdrop-blur">
-                    <svg class="w-4 h-4 text-pust-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/></svg>
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-sm font-medium mb-6 shadow-sm">
+                    <svg class="w-4 h-4 text-pust-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/></svg>
                     Contact Support
                 </span>
-                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">Connect with the help desk team</h1>
-                <p class="text-slate-200 text-lg md:text-xl leading-relaxed max-w-2xl">
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6 text-pust-navy">Connect with the help desk team</h1>
+                <p class="text-slate-600 text-lg md:text-xl leading-relaxed max-w-2xl">
                     Reach out for general support, office guidance, or service questions. If you already have an account, sign in and submit a ticket for tracked assistance.
                 </p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href="<?= appUrl('login.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white text-pust-navy font-semibold shadow-lg shadow-black/10 hover:-translate-y-0.5 transition-transform">
+                    <a href="<?= appUrl('login.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg pust-btn-primary font-semibold shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         Sign In
                     </a>
-                    <a href="<?= appUrl('register.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
+                    <a href="<?= appUrl('register.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-300 text-pust-navy font-semibold hover:bg-pust-primary/10 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v6m3-3h-6M5 20h14a1 1 0 001-1v-1a4 4 0 00-4-4H8a4 4 0 00-4 4v1a1 1 0 001 1zm9-12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         Create Account
                     </a>
@@ -107,19 +107,19 @@ $guidance = [
 
             <div class="grid gap-4">
                 <?php foreach ($contactCards as $card): ?>
-                    <article class="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-5 shadow-2xl shadow-black/10">
+                    <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-xl <?= e($card['accent']) ?> flex items-center justify-center flex-shrink-0">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?= e($card['icon']) ?>"/></svg>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-sm uppercase tracking-wider text-slate-300 font-semibold mb-1"><?= e($card['label']) ?></p>
+                                <p class="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-1"><?= e($card['label']) ?></p>
                                 <?php if ($card['href']): ?>
-                                    <a href="<?= e($card['href']) ?>" class="text-white text-base md:text-lg font-semibold hover:text-pust-amber transition-colors"><?= e($card['value']) ?></a>
+                                    <a href="<?= e($card['href']) ?>" class="text-pust-navy text-base md:text-lg font-semibold hover:text-pust-primary transition-colors"><?= e($card['value']) ?></a>
                                 <?php else: ?>
-                                    <p class="text-white text-base md:text-lg font-semibold"><?= e($card['value']) ?></p>
+                                    <p class="text-pust-navy text-base md:text-lg font-semibold"><?= e($card['value']) ?></p>
                                 <?php endif; ?>
-                                <p class="text-sm text-slate-300 mt-1"><?= e($card['note']) ?></p>
+                                <p class="text-sm text-slate-600 mt-1"><?= e($card['note']) ?></p>
                             </div>
                         </div>
                     </article>

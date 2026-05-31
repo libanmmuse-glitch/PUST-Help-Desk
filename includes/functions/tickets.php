@@ -14,9 +14,9 @@ function getTicketById(int $id): ?array
             JOIN departments d ON t.department_id = d.id
             LEFT JOIN categories c ON t.category_id = c.id
             JOIN priorities p ON t.priority_id = p.id
-            JOIN users u ON t.user_id = u.id
-            LEFT JOIN users a ON t.assigned_to = a.id
-            WHERE t.id = ?";
+            LEFT JOIN users u ON t.user_id = u.id AND u.deleted_at IS NULL
+            LEFT JOIN users a ON t.assigned_to = a.id AND a.deleted_at IS NULL
+            WHERE t.id = ? AND t.deleted_at IS NULL";
     $stmt = $db->prepare($sql);
     $stmt->execute([$id]);
     return $stmt->fetch() ?: null;
@@ -30,7 +30,7 @@ function getTicketById(int $id): ?array
  */
 function buildTicketFilterWhere(array $filters, array &$params, array $options = []): string
 {
-    $where = ['1=1'];
+    $where = ['t.deleted_at IS NULL'];
     $excludeStatus = !empty($options['exclude_status']);
 
     if (!empty($filters['staff_scope_user_id'])) {
@@ -42,7 +42,7 @@ function buildTicketFilterWhere(array $filters, array &$params, array $options =
             $params[] = $deptId;
             $params[] = $staffId;
         } elseif ($facultyId > 0) {
-            $where[] = '(EXISTS (SELECT 1 FROM users requester WHERE requester.id = t.user_id AND requester.faculty_id = ?) OR t.assigned_to = ?)';
+            $where[] = '(EXISTS (SELECT 1 FROM users requester WHERE requester.id = t.user_id AND requester.faculty_id = ? AND requester.deleted_at IS NULL) OR t.assigned_to = ?)';
             $params[] = $facultyId;
             $params[] = $staffId;
         } else {
@@ -68,7 +68,7 @@ function buildTicketFilterWhere(array $filters, array &$params, array $options =
         $params[] = $filters['staff_department_id'];
     }
     if (!empty($filters['staff_faculty_id'])) {
-        $where[] = 'EXISTS (SELECT 1 FROM users requester WHERE requester.id = t.user_id AND requester.faculty_id = ?)';
+        $where[] = 'EXISTS (SELECT 1 FROM users requester WHERE requester.id = t.user_id AND requester.faculty_id = ? AND requester.deleted_at IS NULL)';
         $params[] = $filters['staff_faculty_id'];
     }
     if (!$excludeStatus && !empty($filters['status'])) {
@@ -134,7 +134,7 @@ function getTickets(array $filters = [], int $page = 1, int $perPage = 10): arra
             FROM tickets t
             JOIN departments d ON t.department_id = d.id
             JOIN priorities p ON t.priority_id = p.id
-            JOIN users u ON t.user_id = u.id
+            LEFT JOIN users u ON t.user_id = u.id AND u.deleted_at IS NULL
             WHERE $whereSql
             ORDER BY t.created_at DESC
             LIMIT {$pagination['per_page']} OFFSET {$pagination['offset']}";
@@ -160,7 +160,7 @@ function createTicket(array $data, int $userId, ?array $file = null): array
     $ticketNumber = generateTicketNumber();
 
     // Ensure unique ticket number
-    $check = $db->prepare('SELECT id FROM tickets WHERE ticket_number = ?');
+    $check = $db->prepare('SELECT id FROM tickets WHERE ticket_number = ? AND deleted_at IS NULL');
     while (true) {
         $check->execute([$ticketNumber]);
         if (!$check->fetch()) break;
@@ -193,14 +193,14 @@ function createTicket(array $data, int $userId, ?array $file = null): array
     createNotification($userId, 'ticket_created', 'Ticket Created', "Your ticket $ticketNumber has been submitted.", ticketDetailsUrlForUser($userId, $ticketId));
 
     // Notify staff in department
-    $staffStmt = $db->prepare('SELECT id FROM users WHERE role = ? AND department_id = ? AND is_active = 1');
+    $staffStmt = $db->prepare('SELECT id FROM users WHERE role = ? AND department_id = ? AND is_active = 1 AND deleted_at IS NULL');
     $staffStmt->execute(['staff', (int) $data['department_id']]);
     while ($staff = $staffStmt->fetch()) {
         createNotification($staff['id'], 'ticket_created', 'New Ticket', "New ticket $ticketNumber requires attention.", appUrl('staff/ticket-details.php?id=' . $ticketId));
     }
 
     // Notify admin
-    $adminStmt = $db->query("SELECT id FROM users WHERE role = 'admin' AND is_active = 1");
+    $adminStmt = $db->query("SELECT id FROM users WHERE role = 'admin' AND is_active = 1 AND deleted_at IS NULL");
     while ($admin = $adminStmt->fetch()) {
         createNotification($admin['id'], 'ticket_created', 'New Ticket', "New ticket $ticketNumber submitted.", appUrl('admin/ticket-details.php?id=' . $ticketId));
     }
@@ -279,7 +279,7 @@ function updateTicket(int $ticketId, array $data, int $actorId): array
             $fields[] = 'assigned_to = NULL';
         } else {
             $assignId = (int) $assignId;
-            $check = $db->prepare("SELECT id FROM users WHERE id = ? AND role IN ('staff','admin') AND is_active = 1");
+            $check = $db->prepare("SELECT id FROM users WHERE id = ? AND role IN ('staff','admin') AND is_active = 1 AND deleted_at IS NULL");
             $check->execute([$assignId]);
             if (!$check->fetch()) {
                 return ['success' => false, 'errors' => ['Selected assignee is not valid. Add staff users or pick another assignee.']];
@@ -339,8 +339,8 @@ function deleteTicket(int $ticketId, int $actorId): bool
     $ticket = getTicketById($ticketId);
     if (!$ticket) return false;
     $db = getDB();
-    $db->prepare('DELETE FROM tickets WHERE id = ?')->execute([$ticketId]);
-    logActivity($actorId, 'ticket_deleted', 'ticket', $ticketId, 'Deleted ticket ' . $ticket['ticket_number']);
+    $db->prepare('UPDATE tickets SET deleted_at = NOW(), updated_at = NOW() WHERE id = ? AND deleted_at IS NULL')->execute([$ticketId]);
+    logActivity($actorId, 'ticket_deleted', 'ticket', $ticketId, 'Archived ticket ' . $ticket['ticket_number']);
     return true;
 }
 
@@ -412,8 +412,8 @@ function getTicketReplies(int $ticketId, bool $includeInternal = false): array
     $db = getDB();
     $sql = "SELECT r.*, u.first_name, u.last_name, u.role, u.avatar
             FROM ticket_replies r
-            JOIN users u ON r.user_id = u.id
-            WHERE r.ticket_id = ?";
+            LEFT JOIN users u ON r.user_id = u.id AND u.deleted_at IS NULL
+            WHERE r.ticket_id = ? AND r.deleted_at IS NULL";
     if (!$includeInternal) {
         $sql .= ' AND r.is_internal = 0';
     }
@@ -426,7 +426,7 @@ function getTicketReplies(int $ticketId, bool $includeInternal = false): array
 function getTicketAttachments(int $ticketId): array
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT * FROM attachments WHERE ticket_id = ? AND reply_id IS NULL ORDER BY created_at');
+    $stmt = $db->prepare('SELECT * FROM attachments WHERE ticket_id = ? AND reply_id IS NULL AND deleted_at IS NULL ORDER BY created_at');
     $stmt->execute([$ticketId]);
     return $stmt->fetchAll();
 }
@@ -435,7 +435,7 @@ function getTicketAttachments(int $ticketId): array
 function getReplyAttachmentsByTicket(int $ticketId): array
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT * FROM attachments WHERE ticket_id = ? AND reply_id IS NOT NULL ORDER BY created_at');
+    $stmt = $db->prepare('SELECT * FROM attachments WHERE ticket_id = ? AND reply_id IS NOT NULL AND deleted_at IS NULL ORDER BY created_at');
     $stmt->execute([$ticketId]);
     $grouped = [];
     foreach ($stmt->fetchAll() as $row) {
@@ -469,7 +469,7 @@ function getStaffRecentTickets(int $staffUserId, int $departmentId, int $limit =
             FROM tickets t
             JOIN departments d ON t.department_id = d.id
             JOIN priorities p ON t.priority_id = p.id
-            JOIN users u ON t.user_id = u.id
+            LEFT JOIN users u ON t.user_id = u.id AND u.deleted_at IS NULL
             WHERE $where
             ORDER BY t.created_at DESC
             LIMIT $limit";
@@ -492,8 +492,8 @@ function getDashboardStats(?int $departmentId = null, ?int $userId = null, ?int 
     $stats['resolved_tickets'] = $statusCounts['resolved'];
     $stats['closed_tickets'] = $statusCounts['closed'];
     $stats['active_tickets'] = $statusCounts['active'];
-    $stats['total_students'] = (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'student'")->fetchColumn();
-    $stats['total_staff'] = (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'staff'")->fetchColumn();
+    $stats['total_students'] = (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'student' AND deleted_at IS NULL")->fetchColumn();
+    $stats['total_staff'] = (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'staff' AND deleted_at IS NULL")->fetchColumn();
 
     return $stats;
 }
@@ -522,7 +522,7 @@ function getChartData(array $filters = []): array
     $whereSql = buildTicketFilterWhere($filters, $params);
 
     $byDept = $db->query(
-        'SELECT d.name, COUNT(t.id) AS count FROM departments d LEFT JOIN tickets t ON d.id = t.department_id GROUP BY d.id, d.name ORDER BY d.name'
+        'SELECT d.name, COUNT(t.id) AS count FROM departments d LEFT JOIN tickets t ON d.id = t.department_id AND t.deleted_at IS NULL GROUP BY d.id, d.name ORDER BY d.name'
     )->fetchAll();
 
     $statusSql = "SELECT t.status, COUNT(*) AS count FROM tickets t WHERE $whereSql GROUP BY t.status";

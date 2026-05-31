@@ -30,12 +30,12 @@ function loginUser(array $user, bool $remember = false): void
     $_SESSION['last_activity'] = time();
 
     $db = getDB();
-    $stmt = $db->prepare('UPDATE users SET last_login_at = NOW() WHERE id = ?');
+    $stmt = $db->prepare('UPDATE users SET last_login_at = NOW() WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$user['id']]);
 
     if ($remember) {
         $token = bin2hex(random_bytes(32));
-        $stmt = $db->prepare('UPDATE users SET remember_token = ? WHERE id = ?');
+        $stmt = $db->prepare('UPDATE users SET remember_token = ? WHERE id = ? AND deleted_at IS NULL');
         $stmt->execute([hash('sha256', $token), $user['id']]);
         setcookie('remember_token', $token, time() + (REMEMBER_DAYS * 86400), '/', '', false, true);
         setcookie('remember_user', (string) $user['id'], time() + (REMEMBER_DAYS * 86400), '/', '', false, true);
@@ -64,7 +64,7 @@ function logoutUser(): void
 function attemptLogin(string $email, string $password): ?array
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT * FROM users WHERE email = ? AND is_active = 1 LIMIT 1');
+    $stmt = $db->prepare('SELECT * FROM users WHERE email = ? AND is_active = 1 AND deleted_at IS NULL LIMIT 1');
     $stmt->execute([strtolower(trim($email))]);
     $user = $stmt->fetch();
     if ($user && password_verify($password, $user['password'])) {
@@ -79,7 +79,7 @@ function checkRememberMe(): void
         return;
     }
     $db = getDB();
-    $stmt = $db->prepare('SELECT * FROM users WHERE id = ? AND is_active = 1 AND remember_token = ?');
+    $stmt = $db->prepare('SELECT * FROM users WHERE id = ? AND is_active = 1 AND deleted_at IS NULL AND remember_token = ?');
     $stmt->execute([(int) $_COOKIE['remember_user'], hash('sha256', $_COOKIE['remember_token'])]);
     $user = $stmt->fetch();
     if ($user) {
@@ -136,7 +136,7 @@ function registerUser(array $data): array
     }
 
     $db = getDB();
-    $stmt = $db->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL');
     $stmt->execute([strtolower(trim($data['email']))]);
     if ($stmt->fetch()) {
         $errors[] = 'Email is already registered.';
@@ -147,8 +147,6 @@ function registerUser(array $data): array
     }
 
     $memberId = trim($data['student_id'] ?? '') ?: null;
-
-    ensureFacultiesSchema();
 
     try {
         $stmt = $db->prepare('INSERT INTO users (student_id, first_name, last_name, email, password, phone, role, staff_category, faculty_id, department_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
@@ -187,37 +185,59 @@ function registerUser(array $data): array
     return ['success' => true, 'user_id' => $userId, 'role' => $accountType];
 }
 
+function ensurePasswordResetsTable(): void
+{
+    ensureHelpDeskDatabaseSchema();
+}
+
 function createPasswordResetToken(string $email): bool
 {
     $email = strtolower(trim($email));
-    $db = getDB();
-    $stmt = $db->prepare('SELECT id, first_name FROM users WHERE email = ? AND is_active = 1 LIMIT 1');
+    if (!validateEmail($email)) {
+        return true; // Don't reveal anything
+    }
+
+    // Auto-create table if missing (resilience for fresh installs)
+    ensurePasswordResetsTable();
+
+    $db   = getDB();
+    $stmt = $db->prepare('SELECT id, first_name FROM users WHERE email = ? AND is_active = 1 AND deleted_at IS NULL LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if (!$user) {
-        return true; // Don't reveal if email exists
+        return true; // Don't reveal if email exists (timing-safe)
     }
-    
+
+    // ── Rate limiting: max 1 request per 60 seconds per email ──────────────
+    $rateStmt = $db->prepare(
+        'SELECT created_at FROM password_resets WHERE email = ? ORDER BY created_at DESC LIMIT 1'
+    );
+    $rateStmt->execute([$email]);
+    $lastReset = $rateStmt->fetch();
+    if ($lastReset && (time() - strtotime($lastReset['created_at'])) < 60) {
+        return true; // Silently skip — too soon since last request
+    }
+
+    // ── Generate a secure token ─────────────────────────────────────────────
     $token = bin2hex(random_bytes(32));
     $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
-    $stmt = $db->prepare('INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))');
-    $stmt->execute([$email, hash('sha256', $token)]);
+    $db->prepare(
+        'INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))'
+    )->execute([$email, hash('sha256', $token)]);
 
-    $resetLink = appUrl('reset-password.php?token=' . urlencode($token) . '&email=' . urlencode($email));
-    $subject = 'Reset Your Password - PUST Help Desk';
+    // ── Build reset link and send branded HTML email ────────────────────────
+    $resetLink = rtrim(appUrl('reset-password.php'), '/')
+        . '?token=' . urlencode($token)
+        . '&email=' . urlencode($email);
+
     $name = $user['first_name'] ?? 'User';
-    
-    $body = "Hello {$name},\r\n\r\n";
-    $body .= "We received a request to reset your password for PUST Help Desk.\r\n";
-    $body .= "You can reset your password by clicking the link below:\r\n\r\n";
-    $body .= "{$resetLink}\r\n\r\n";
-    $body .= "If you did not request a password reset, please ignore this email. This link will expire in 1 hour.\r\n\r\n";
-    $body .= "Regards,\r\n";
-    $body .= "PUST Help Desk Team\r\n";
-    
-    sendAppEmail($email, $subject, $body);
+    $sent = sendPasswordResetEmail($email, $resetLink, $name);
 
-    return true;
+    if (!$sent) {
+        logMailError("Password reset email could not be delivered to: {$email}");
+    }
+
+    return true; // Always true — never reveal email existence
 }
 
 function resetPassword(string $token, string $email, string $password, string $passwordConfirm = ''): array
@@ -244,7 +264,7 @@ function resetPassword(string $token, string $email, string $password, string $p
         return ['success' => false, 'errors' => $errors];
     }
 
-    $stmt = $db->prepare('UPDATE users SET password = ? WHERE email = ? AND is_active = 1');
+    $stmt = $db->prepare('UPDATE users SET password = ? WHERE email = ? AND is_active = 1 AND deleted_at IS NULL');
     $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $email]);
     $db->prepare('DELETE FROM password_resets WHERE email = ?')->execute([$email]);
 
@@ -254,7 +274,7 @@ function resetPassword(string $token, string $email, string $password, string $p
 function changePassword(int $userId, string $current, string $new): array
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT password FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT password FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
     if (!$user || !password_verify($current, $user['password'])) {
@@ -264,7 +284,7 @@ function changePassword(int $userId, string $current, string $new): array
     if (!empty($errors)) {
         return ['success' => false, 'errors' => $errors];
     }
-    $stmt = $db->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmt = $db->prepare('UPDATE users SET password = ? WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([password_hash($new, PASSWORD_DEFAULT), $userId]);
     logActivity($userId, 'password_change', 'user', $userId, 'Password changed');
     return ['success' => true];
@@ -319,7 +339,7 @@ function adminCreateUser(array $data): array
     }
 
     $db = getDB();
-    $stmt = $db->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL');
     $stmt->execute([strtolower(trim($data['email']))]);
     if ($stmt->fetch()) {
         $errors[] = 'Email is already registered.';
@@ -360,7 +380,7 @@ function adminUpdateUser(int $id, array $data): array
     $errors = [];
     $db = getDB();
     
-    $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $user = $stmt->fetch();
     if (!$user) {
@@ -413,7 +433,7 @@ function adminUpdateUser(int $id, array $data): array
         }
     }
 
-    $stmt = $db->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = ? AND id != ? AND deleted_at IS NULL');
     $stmt->execute([strtolower(trim($data['email'])), $id]);
     if ($stmt->fetch()) {
         $errors[] = 'Email is already in use by another account.';
@@ -427,7 +447,7 @@ function adminUpdateUser(int $id, array $data): array
     $isActive = isset($data['is_active']) ? (int) $data['is_active'] : $user['is_active'];
 
     try {
-        $sql = 'UPDATE users SET student_id = ?, first_name = ?, last_name = ?, email = ?, phone = ?, role = ?, staff_category = ?, faculty_id = ?, department_id = ?, is_active = ?';
+        $sql = 'UPDATE users SET student_id = ?, first_name = ?, last_name = ?, email = ?, phone = ?, role = ?, staff_category = ?, faculty_id = ?, department_id = ?, is_active = ?, deleted_at = CASE WHEN ? = 0 THEN COALESCE(deleted_at, NOW()) ELSE NULL END';
         $params = [
             $memberId,
             sanitizeString($data['first_name']),
@@ -438,6 +458,7 @@ function adminUpdateUser(int $id, array $data): array
             $staffCategory,
             $facultyId,
             $departmentId,
+            $isActive,
             $isActive
         ];
 
@@ -465,14 +486,14 @@ function adminDeleteUser(int $id): bool
         return false;
     }
     $db = getDB();
-    $stmt = $db->prepare('SELECT email FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT email FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$id]);
     $email = $stmt->fetchColumn();
     if (!$email) {
         return false;
     }
 
-    $db->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);
-    logActivity(userId(), 'user_delete', 'user', $id, "Admin deleted user account: {$email}");
+    $db->prepare('UPDATE users SET is_active = 0, remember_token = NULL, deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL')->execute([$id]);
+    logActivity(userId(), 'user_delete', 'user', $id, "Admin archived user account: {$email}");
     return true;
 }

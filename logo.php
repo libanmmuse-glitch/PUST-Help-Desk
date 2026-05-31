@@ -5,13 +5,21 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/functions/logo-image.php';
 
-$source = ROOT_PATH . '/assets/images/pust-logo-source.png';
-if (!is_file($source)) {
-    $source = ROOT_PATH . '/assets/images/pust-logo.png';
+$sourceCandidates = [
+    ROOT_PATH . '/assets/images/pust-logo-official.jpg',
+    ROOT_PATH . '/assets/images/pust-logo-source.png',
+    ROOT_PATH . '/assets/images/pust-logo.png',
+];
+$source = null;
+foreach ($sourceCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $source = $candidate;
+        break;
+    }
 }
 $output = ROOT_PATH . '/assets/images/pust-logo.png';
 
-if (!is_file($source)) {
+if (!$source || !is_file($source)) {
     http_response_code(404);
     exit;
 }

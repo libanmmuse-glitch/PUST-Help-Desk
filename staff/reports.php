@@ -7,13 +7,13 @@ $user = currentUser();
 $deptId = (int)($user['department_id'] ?? 0);
 $db = getDB();
 $chartData = ['by_department' => [], 'by_status' => [], 'monthly' => []];
-$stmt = $db->prepare("SELECT status, COUNT(*) AS count FROM tickets WHERE department_id = ? GROUP BY status");
+$stmt = $db->prepare("SELECT status, COUNT(*) AS count FROM tickets WHERE department_id = ? AND deleted_at IS NULL GROUP BY status");
 $stmt->execute([$deptId]);
 $chartData['by_status'] = $stmt->fetchAll();
-$stmt = $db->prepare("SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count FROM tickets WHERE department_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY month");
+$stmt = $db->prepare("SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count FROM tickets WHERE department_id = ? AND deleted_at IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY month");
 $stmt->execute([$deptId]);
 $chartData['monthly'] = $stmt->fetchAll();
-$stmt = $db->prepare("SELECT d.name, COUNT(t.id) AS count FROM departments d LEFT JOIN tickets t ON d.id = t.department_id WHERE d.id = ? GROUP BY d.id, d.name");
+$stmt = $db->prepare("SELECT d.name, COUNT(t.id) AS count FROM departments d LEFT JOIN tickets t ON d.id = t.department_id AND t.deleted_at IS NULL WHERE d.id = ? GROUP BY d.id, d.name");
 $stmt->execute([$deptId]);
 $chartData['by_department'] = $stmt->fetchAll();
 

@@ -5,7 +5,7 @@ requireRole(['admin']);
 
 $chartData = getChartData();
 $db = getDB();
-$activityReport = $db->query("SELECT u.first_name, u.last_name, u.role, COUNT(a.id) AS actions FROM activity_logs a JOIN users u ON a.user_id = u.id WHERE a.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY u.id ORDER BY actions DESC LIMIT 10")->fetchAll();
+$activityReport = $db->query("SELECT COALESCE(u.first_name,'Archived') AS first_name, COALESCE(u.last_name,'') AS last_name, COALESCE(u.role,'user') AS role, COUNT(a.id) AS actions FROM activity_logs a LEFT JOIN users u ON a.user_id = u.id AND u.deleted_at IS NULL WHERE a.deleted_at IS NULL AND a.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY u.id ORDER BY actions DESC LIMIT 10")->fetchAll();
 
 $pageTitle = 'Reports & Analytics';
 $loadCharts = true;

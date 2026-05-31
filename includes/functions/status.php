@@ -7,7 +7,7 @@ function getTicketStatuses(): array
 {
     return [
         'pending'     => ['label' => 'Pending',     'color' => PUST_COLOR_TEXT_SECONDARY, 'step' => 1],
-        'open'        => ['label' => 'Open',        'color' => PUST_COLOR_BLUE, 'step' => 2],
+        'open'        => ['label' => 'Open',        'color' => PUST_COLOR_PRIMARY_DARK, 'step' => 2],
         'in_progress' => ['label' => 'In Progress', 'color' => PUST_COLOR_AMBER, 'step' => 3],
         'resolved'    => ['label' => 'Resolved',    'color' => PUST_COLOR_EMERALD, 'step' => 4],
         'closed'      => ['label' => 'Closed',      'color' => PUST_COLOR_TEXT_SECONDARY, 'step' => 5],
@@ -113,6 +113,7 @@ function getStatusCountsForFilters(array $filters = []): array
     unset($filters['status'], $filters['status_in']);
     $params = [];
     $whereSql = buildTicketFilterWhere($filters, $params, ['exclude_status' => true]);
+    $whereSql = 't.deleted_at IS NULL AND ' . $whereSql;
 
     $counts = [
         'pending' => 0,

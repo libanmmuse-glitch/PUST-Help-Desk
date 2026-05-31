@@ -51,7 +51,14 @@ if (isPost()) {
         redirect(appUrl('admin/users.php'));
     } elseif ($action === 'toggle') {
         $uid = (int) input('user_id');
-        $db->prepare('UPDATE users SET is_active = NOT is_active WHERE id = ? AND id != ?')->execute([$uid, userId()]);
+        $stmt = $db->prepare('SELECT is_active FROM users WHERE id = ? AND id != ? AND deleted_at IS NULL');
+        $stmt->execute([$uid, userId()]);
+        $currentActive = (int) $stmt->fetchColumn();
+        if ($currentActive > 0) {
+            $db->prepare('UPDATE users SET is_active = 0, deleted_at = NOW() WHERE id = ? AND id != ?')->execute([$uid, userId()]);
+        } else {
+            $db->prepare('UPDATE users SET is_active = 1, deleted_at = NULL WHERE id = ? AND id != ?')->execute([$uid, userId()]);
+        }
         flash('success', 'User status updated.');
         redirect(appUrl('admin/users.php'));
     }
@@ -140,11 +147,11 @@ require dirname(__DIR__) . '/includes/templates/dashboard-layout.php';
 
                             <!-- Delete button -->
                             <?php if ($u['id'] != userId()): ?>
-                            <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user? This will also delete all their tickets and replies permanently.');">
+                            <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to archive this user account? The account will be hidden from active views but its history will remain in the database.');">
                                 <?= csrfField() ?>
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                                <button type="submit" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-semibold transition">Delete</button>
+                                <button type="submit" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-semibold transition">Archive</button>
                             </form>
                             <?php endif; ?>
                         </div>

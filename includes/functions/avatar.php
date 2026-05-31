@@ -109,7 +109,7 @@ function uploadUserAvatar(int $userId, array $file): array
     }
 
     $db = getDB();
-    $stmt = $db->prepare('SELECT avatar FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT avatar FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$userId]);
     $old = $stmt->fetchColumn();
     if ($old && $old !== 'default-avatar.png') {
@@ -119,7 +119,7 @@ function uploadUserAvatar(int $userId, array $file): array
         }
     }
 
-    $db->prepare('UPDATE users SET avatar = ? WHERE id = ?')->execute([$relative, $userId]);
+    $db->prepare('UPDATE users SET avatar = ? WHERE id = ? AND deleted_at IS NULL')->execute([$relative, $userId]);
 
     if (isLoggedIn() && userId() === $userId) {
         $_SESSION['user']['avatar'] = $relative;
@@ -133,7 +133,7 @@ function uploadUserAvatar(int $userId, array $file): array
 function removeUserAvatar(int $userId): void
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT avatar FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT avatar FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$userId]);
     $old = $stmt->fetchColumn();
     if ($old && $old !== 'default-avatar.png') {
@@ -142,7 +142,7 @@ function removeUserAvatar(int $userId): void
             @unlink($oldPath);
         }
     }
-    $db->prepare('UPDATE users SET avatar = ? WHERE id = ?')->execute(['default-avatar.png', $userId]);
+    $db->prepare('UPDATE users SET avatar = ? WHERE id = ? AND deleted_at IS NULL')->execute(['default-avatar.png', $userId]);
     if (isLoggedIn() && userId() === $userId) {
         $_SESSION['user']['avatar'] = 'default-avatar.png';
     }
@@ -160,7 +160,7 @@ function processProfilePost(array $user, string $redirectUrl): void
 
     if ($action === 'profile') {
         if ($user['role'] === 'student') {
-            $db->prepare('UPDATE users SET first_name=?, last_name=?, phone=?, student_id=? WHERE id=?')->execute([
+            $db->prepare('UPDATE users SET first_name=?, last_name=?, phone=?, student_id=? WHERE id=? AND deleted_at IS NULL')->execute([
                 sanitizeString(input('first_name')),
                 sanitizeString(input('last_name')),
                 sanitizeString(input('phone')),
@@ -168,7 +168,7 @@ function processProfilePost(array $user, string $redirectUrl): void
                 $uid,
             ]);
         } else {
-            $db->prepare('UPDATE users SET first_name=?, last_name=?, phone=? WHERE id=?')->execute([
+            $db->prepare('UPDATE users SET first_name=?, last_name=?, phone=? WHERE id=? AND deleted_at IS NULL')->execute([
                 sanitizeString(input('first_name')),
                 sanitizeString(input('last_name')),
                 sanitizeString(input('phone')),
@@ -201,7 +201,7 @@ function processProfilePost(array $user, string $redirectUrl): void
 function refreshSessionUser(int $userId): void
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT id, student_id, first_name, last_name, email, phone, role, staff_category, faculty_id, department_id, avatar FROM users WHERE id = ?');
+    $stmt = $db->prepare('SELECT id, student_id, first_name, last_name, email, phone, role, staff_category, faculty_id, department_id, avatar FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([$userId]);
     $u = $stmt->fetch();
     if ($u && isLoggedIn() && userId() === $userId) {

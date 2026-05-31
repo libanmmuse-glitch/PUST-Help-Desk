@@ -16,7 +16,29 @@ function redirect(string $url): void
 
 function appUrl(string $path = ''): string
 {
-    return rtrim(APP_URL, '/') . '/' . ltrim($path, '/');
+    $path = trim($path);
+
+    if ($path !== '') {
+        $normalizedPath = str_replace('\\', '/', $path);
+        $normalizedRoot = str_replace('\\', '/', ROOT_PATH);
+
+        // If a filesystem path slips in, convert it back to an app-relative route.
+        if (preg_match('~^[A-Za-z]:/~', $normalizedPath) === 1) {
+            if (str_starts_with($normalizedPath, $normalizedRoot . '/')) {
+                $normalizedPath = substr($normalizedPath, strlen($normalizedRoot) + 1);
+            } else {
+                $normalizedPath = basename($normalizedPath);
+            }
+        }
+
+        $path = ltrim($normalizedPath, '/');
+
+        [$route, $query] = array_pad(explode('?', $path, 2), 2, '');
+        $route = preg_replace('/\.php$/i', '', $route);
+        $path = $route . ($query !== '' ? '?' . $query : '');
+    }
+
+    return rtrim(APP_URL, '/') . ($path !== '' ? '/' . $path : '');
 }
 
 /** Build ticket list URL preserving current filters (search, department, etc.). */
@@ -34,7 +56,7 @@ function ticketDetailsUrl(int $ticketId, ?string $role = null): string
 function ticketDetailsUrlForUser(int $userId, int $ticketId): string
 {
     $db = getDB();
-    $stmt = $db->prepare('SELECT role FROM users WHERE id = ? LIMIT 1');
+    $stmt = $db->prepare('SELECT role FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1');
     $stmt->execute([$userId]);
     $role = $stmt->fetchColumn() ?: 'student';
 
@@ -71,11 +93,13 @@ function assetUrl(string $path): string
 
 function logoUrl(): string
 {
-    // Prefer transparent version, then original jpg, then original png
+    // Prefer the generated official transparent version, then the cached PNG/JPG assets.
     $candidates = [
         ROOT_PATH . '/assets/images/pust-logo-transparent.png' => assetUrl('images/pust-logo-transparent.png'),
-        ROOT_PATH . '/assets/images/pust-logo.jpg'             => assetUrl('images/pust-logo.jpg'),
         ROOT_PATH . '/assets/images/pust-logo.png'             => assetUrl('images/pust-logo.png'),
+        ROOT_PATH . '/assets/images/pust-logo-official.jpg'    => assetUrl('images/pust-logo-official.jpg'),
+        ROOT_PATH . '/assets/images/pust-logo.jpg'             => assetUrl('images/pust-logo.jpg'),
+        ROOT_PATH . '/assets/images/pust-logo-source.png'      => assetUrl('images/pust-logo-source.png'),
     ];
     foreach ($candidates as $path => $url) {
         if (is_file($path)) {
@@ -103,11 +127,13 @@ function renderLogo(string $size = 'sm', string $alt = 'PUST Help Desk'): string
     $class = $info['class'];
     $px    = $info['px'];
 
-    // Prefer transparent PNG, then original jpg, then original png
+    // Prefer the generated official transparent version, then the cached PNG/JPG assets.
     $candidates = [
         ROOT_PATH . '/assets/images/pust-logo-transparent.png' => assetUrl('images/pust-logo-transparent.png'),
-        ROOT_PATH . '/assets/images/pust-logo.jpg'             => assetUrl('images/pust-logo.jpg'),
         ROOT_PATH . '/assets/images/pust-logo.png'             => assetUrl('images/pust-logo.png'),
+        ROOT_PATH . '/assets/images/pust-logo-official.jpg'    => assetUrl('images/pust-logo-official.jpg'),
+        ROOT_PATH . '/assets/images/pust-logo.jpg'             => assetUrl('images/pust-logo.jpg'),
+        ROOT_PATH . '/assets/images/pust-logo-source.png'      => assetUrl('images/pust-logo-source.png'),
     ];
     foreach ($candidates as $filePath => $fileUrl) {
         if (is_file($filePath)) {
@@ -120,7 +146,7 @@ function renderLogo(string $size = 'sm', string $alt = 'PUST Help Desk'): string
 
     // Fallback SVG shield when no image file is found
     return '
-    <svg class="pust-logo pust-logo--' . e($size) . ' ' . $class . ' text-pust-primary dark:text-blue-500 transition-transform duration-300 hover:rotate-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="' . e($alt) . '">
+    <svg class="pust-logo pust-logo--' . e($size) . ' ' . $class . ' text-pust-primary dark:text-pust-primary-light transition-transform duration-300 hover:rotate-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="' . e($alt) . '">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>
         <path d="M12 15c0-1.5 1-2.5 3-2.5s3 1 3 2.5v.5H12v-.5z" fill="currentColor" fill-opacity="0.2"/>
         <path d="M12 15c0-1.5-1-2.5-3-2.5S6 13.5 6 15v.5h6v-.5z" fill="currentColor" fill-opacity="0.2"/>

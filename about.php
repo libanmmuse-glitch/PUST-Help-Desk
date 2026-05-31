@@ -93,28 +93,28 @@ $values = [
 ];
 ?>
 
-<section class="relative overflow-hidden bg-gradient-pust-hero text-white">
-    <div class="absolute inset-0 opacity-30">
-        <div class="absolute -top-24 right-0 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-        <div class="absolute -bottom-28 left-[-4rem] h-80 w-80 rounded-full bg-pust-amber/20 blur-3xl"></div>
+<section class="pust-page-hero relative overflow-hidden border-b border-slate-200">
+    <div class="absolute inset-0 opacity-70">
+        <div class="absolute -top-24 right-0 h-72 w-72 rounded-full bg-pust-primary/10 blur-3xl"></div>
+        <div class="absolute -bottom-28 left-[-4rem] h-80 w-80 rounded-full bg-pust-emerald/10 blur-3xl"></div>
     </div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
             <div class="max-w-2xl">
-                <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/15 border border-white/20 rounded-full text-sm font-medium mb-6 backdrop-blur">
-                    <svg class="w-4 h-4 text-pust-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-sm font-medium mb-6 shadow-sm">
+                    <svg class="w-4 h-4 text-pust-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     About PUST Help Desk
                 </span>
-                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">Professional campus support, organized in one place</h1>
-                <p class="text-slate-200 text-lg md:text-xl leading-relaxed max-w-2xl">
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6 text-pust-navy">Professional campus support, organized in one place</h1>
+                <p class="text-slate-600 text-lg md:text-xl leading-relaxed max-w-2xl">
                     PUST Help Desk is a secure and streamlined service platform built to help students, lecturers, staff, and administrators submit, manage, and resolve support requests with clarity and accountability.
                 </p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href="<?= appUrl('contact.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white text-pust-navy font-semibold shadow-lg shadow-black/10 hover:-translate-y-0.5 transition-transform">
+                    <a href="<?= appUrl('contact.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg pust-btn-primary font-semibold shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/></svg>
                         Contact Support
                     </a>
-                    <a href="<?= appUrl('login.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
+                    <a href="<?= appUrl('login.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-300 text-pust-navy font-semibold hover:bg-pust-primary/10 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         Sign In
                     </a>
@@ -122,14 +122,14 @@ $values = [
             </div>
             <div class="grid gap-4">
                 <?php foreach ($highlights as $highlight): ?>
-                    <article class="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-5 shadow-2xl shadow-black/10">
+                    <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-white/15 text-pust-amber flex items-center justify-center flex-shrink-0">
+                            <div class="w-12 h-12 rounded-xl bg-pust-primary/10 text-pust-primary flex items-center justify-center flex-shrink-0">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?= e($highlight['icon']) ?>"/></svg>
                             </div>
                             <div>
-                                <p class="text-sm uppercase tracking-wider text-slate-300 font-semibold mb-1"><?= e($highlight['label']) ?></p>
-                                <p class="text-white text-base leading-relaxed"><?= e($highlight['value']) ?></p>
+                                <p class="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-1"><?= e($highlight['label']) ?></p>
+                                <p class="text-slate-700 text-base leading-relaxed"><?= e($highlight['value']) ?></p>
                             </div>
                         </div>
                     </article>
@@ -193,7 +193,7 @@ $values = [
             foreach ($stats as $stat):
             ?>
                 <article class="about-stat-card group bg-white border border-slate-200 rounded-3xl p-6 shadow-sm overflow-hidden" style="animation-delay: <?= e($stat['delay']) ?>;">
-                    <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+                    <div class="absolute inset-x-0 top-0 h-1 bg-slate-200"></div>
                     <div class="flex items-start gap-4">
                         <div class="w-14 h-14 rounded-2xl <?= e($stat['badge']) ?> ring-1 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
                             <svg class="w-6 h-6 <?= e($stat['accent']) ?> about-stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?= e($stat['icon']) ?>"/></svg>
@@ -272,25 +272,25 @@ $values = [
 </section>
 
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-    <div class="rounded-3xl bg-gradient-pust-hero text-white overflow-hidden relative">
-        <div class="absolute inset-0 opacity-30">
-            <div class="absolute top-0 right-0 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-pust-amber/20 blur-3xl"></div>
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden relative">
+        <div class="absolute inset-0 opacity-60 pointer-events-none">
+            <div class="absolute top-0 right-0 h-56 w-56 rounded-full bg-pust-primary/10 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-pust-emerald/10 blur-3xl"></div>
         </div>
         <div class="relative px-6 py-10 md:px-10 md:py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div class="max-w-2xl">
-                <p class="text-sm uppercase tracking-wider text-slate-300 font-semibold mb-2">Ready for campus use</p>
-                <h2 class="text-2xl md:text-3xl font-bold mb-3">A professional help desk experience for the whole university community</h2>
-                <p class="text-slate-200 leading-relaxed">
+                <p class="text-sm uppercase tracking-wider text-pust-emerald font-semibold mb-2">Ready for campus use</p>
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 text-pust-navy">A professional help desk experience for the whole university community</h2>
+                <p class="text-slate-600 leading-relaxed">
                     From request submission to final resolution, PUST Help Desk is designed to keep support efficient, visible, and easy to trust.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="<?= appUrl('register.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white text-pust-navy font-semibold hover:-translate-y-0.5 transition-transform">
+                <a href="<?= appUrl('register.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg pust-btn-primary font-semibold hover:-translate-y-0.5 transition-transform">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v6m3-3h-6M5 20h14a1 1 0 001-1v-1a4 4 0 00-4-4H8a4 4 0 00-4 4v1a1 1 0 001 1zm9-12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     Create Account
                 </a>
-                <a href="<?= appUrl('contact.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
+                <a href="<?= appUrl('contact.php') ?>" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-300 text-pust-navy font-semibold hover:bg-pust-primary/10 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/></svg>
                     Get in Touch
                 </a>

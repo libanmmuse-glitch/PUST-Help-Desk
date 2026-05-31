@@ -8,6 +8,8 @@ if (is_file(ROOT_PATH . '/vendor/autoload.php')) {
     require_once ROOT_PATH . '/vendor/autoload.php';
 }
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/database/schema.php';
+ensureHelpDeskDatabaseSchema();
 require_once __DIR__ . '/functions/helpers.php';
 require_once __DIR__ . '/functions/security.php';
 require_once __DIR__ . '/functions/auth.php';

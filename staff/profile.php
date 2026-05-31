@@ -7,12 +7,12 @@ $base = userRole() === 'admin' ? 'admin' : 'staff';
 $profileUrl = appUrl($base . '/profile.php');
 
 if (isPost()) {
-    $stmt = getDB()->prepare('SELECT * FROM users WHERE id = ?');
+    $stmt = getDB()->prepare('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL');
     $stmt->execute([userId()]);
     processProfilePost($stmt->fetch(), $profileUrl);
 }
 
-$stmt = getDB()->prepare('SELECT * FROM users WHERE id = ?');
+$stmt = getDB()->prepare('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL');
 $stmt->execute([userId()]);
 $user = $stmt->fetch();
 refreshSessionUser(userId());

@@ -6,11 +6,22 @@
 require_once __DIR__ . '/brand.php';
 
 define('APP_NAME', 'PUST Help Desk App');
-define('APP_URL', 'http://localhost/Help-Desk-App');
 define('APP_VERSION', '1.0.0');
 
 define('ROOT_PATH', dirname(dirname(__DIR__)));
 define('UPLOAD_PATH', ROOT_PATH . '/assets/uploads');
+
+$appHost = $_SERVER['HTTP_HOST'] ?? '';
+$isProductionHost = is_string($appHost) && (
+    str_contains($appHost, 'infinityfreeapp.com') ||
+    str_contains($appHost, 'ftpupload.net')
+);
+
+define('APP_URL', $isProductionHost
+    ? 'http://pust-helpdesk.infinityfreeapp.com'
+    : 'http://localhost/Help-Desk-App'
+);
+
 define('UPLOAD_URL', APP_URL . '/assets/uploads');
 
 define('SESSION_LIFETIME', 7200); // 2 hours

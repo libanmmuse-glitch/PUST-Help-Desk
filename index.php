@@ -6,35 +6,72 @@ if (isLoggedIn()) {
 $pageTitle = 'Home';
 require __DIR__ . '/includes/templates/public-header.php';
 ?>
-<section class="bg-gradient-pust-hero text-white">
-    <div class="max-w-7xl mx-auto px-4 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-            <span class="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium mb-4">PUST University Support</span>
-            <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">Your Campus Support, <span class="text-pust-amber">Simplified</span></h1>
-            <p class="text-slate-300 text-lg mb-8">Submit complaints, track requests, and get help from ICT, Finance, Registrar, Library, and more — all in one professional help desk platform.</p>
-            <div class="flex flex-wrap gap-4">
-                <a href="<?= appUrl('register.php') ?>" class="px-6 py-3 pust-btn-accent font-semibold rounded-lg transition">Get Started</a>
-                <a href="<?= appUrl('login.php') ?>" class="px-6 py-3 pust-btn-outline-white font-semibold rounded-lg transition">Sign In</a>
+<section class="pust-public-surface hero-section relative overflow-hidden">
+    <div class="hero-glow hero-glow--one" aria-hidden="true"></div>
+    <div class="hero-glow hero-glow--two" aria-hidden="true"></div>
+    <div class="max-w-7xl mx-auto px-4 py-20 md:py-28 grid lg:grid-cols-2 gap-12 items-center relative">
+        <div class="relative z-10">
+            <span class="hero-badge inline-flex items-center gap-3 px-3.5 py-2 bg-white/70 text-slate-950 rounded-full text-sm font-semibold mb-5 border border-slate-200/70 backdrop-blur-sm shadow-sm dark:bg-white/10 dark:text-white dark:border-white/15">
+                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm ring-1 ring-slate-200/70 dark:bg-white/10 dark:ring-white/15"><?= renderLogo('icon', 'PUST') ?></span>
+                Official university support portal
+            </span>
+            <h1 class="hero-title hero-title--professional text-4xl md:text-6xl font-bold leading-tight mb-6 text-slate-950 dark:text-white">
+                <span class="hero-line hero-line--type block">A modern help desk for</span>
+                <span class="hero-line hero-line--accent block text-pust-amber">PUST campus requests</span>
+            </h1>
+            <p class="hero-copy text-slate-700 dark:text-slate-200/90 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl">
+                Submit support requests, route them to the right office, and track every update in one secure university system designed for students, lecturers, and administrators.
+            </p>
+            <div class="hero-actions flex flex-wrap gap-4">
+                <a href="<?= appUrl('register.php') ?>" class="px-6 py-3 pust-btn-accent font-semibold rounded-full transition">Create an Account</a>
+                <a href="<?= appUrl('login.php') ?>" class="px-6 py-3 pust-btn-outline-white font-semibold rounded-full transition">Sign In</a>
+            </div>
+            <div class="hero-meta mt-8 flex flex-wrap gap-3 text-sm text-slate-700 dark:text-slate-200/80">
+                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/75 border border-slate-200/80 dark:bg-white/10 dark:border-white/10">Students</span>
+                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/75 border border-slate-200/80 dark:bg-white/10 dark:border-white/10">Lecturers</span>
+                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/75 border border-slate-200/80 dark:bg-white/10 dark:border-white/10">Administration</span>
             </div>
         </div>
-        <div class="hidden md:flex flex-col items-center justify-center">
-            <div class="dashboard-card bg-white/10 backdrop-blur rounded-2xl p-6 border border-white/20 w-full max-w-md">
+        <div class="hidden lg:flex flex-col items-center justify-center relative z-10">
+            <div class="hero-panel dashboard-card bg-white/85 dark:bg-white/10 backdrop-blur rounded-[1.75rem] p-6 border border-slate-200/80 dark:border-white/20 w-full max-w-md">
+                <div class="mb-6">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-600 dark:text-slate-300/90 font-semibold">Live service overview</p>
+                    <h2 class="text-2xl font-bold mt-1 text-slate-950 dark:text-white">Support at a glance</h2>
+                    <p class="text-sm mt-2 text-slate-600 dark:text-slate-200/90 leading-relaxed">Track requests, route them to the right office, and keep campus support moving.</p>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                    <div class="hero-metric hero-metric--1 bg-white/80 dark:bg-white/10 rounded-2xl p-4 text-center border border-slate-200/80 dark:border-white/10">
                         <p class="text-3xl font-bold text-pust-amber">24/7</p>
-                        <p class="text-sm text-slate-300 mt-1">Ticket Tracking</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 mt-1">Service access</p>
                     </div>
-                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                    <div class="hero-metric hero-metric--2 bg-white/80 dark:bg-white/10 rounded-2xl p-4 text-center border border-slate-200/80 dark:border-white/10">
                         <p class="text-3xl font-bold text-pust-amber">6</p>
-                        <p class="text-sm text-slate-300 mt-1">Departments</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 mt-1">Service teams</p>
                     </div>
-                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                    <div class="hero-metric hero-metric--3 bg-white/80 dark:bg-white/10 rounded-2xl p-4 text-center border border-slate-200/80 dark:border-white/10">
                         <p class="text-3xl font-bold text-pust-amber">Fast</p>
-                        <p class="text-sm text-slate-300 mt-1">Response Times</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 mt-1">Response workflow</p>
                     </div>
-                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                    <div class="hero-metric hero-metric--4 bg-white/80 dark:bg-white/10 rounded-2xl p-4 text-center border border-slate-200/80 dark:border-white/10">
                         <p class="text-3xl font-bold text-pust-amber">Secure</p>
-                        <p class="text-sm text-slate-300 mt-1">Platform</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 mt-1">Request handling</p>
+                    </div>
+                </div>
+                <div class="mt-5 rounded-2xl bg-white/75 border border-slate-200/80 p-4 dark:bg-slate-950/20 dark:border-white/10">
+                    <p class="text-sm font-semibold text-slate-950 dark:text-white">How requests move</p>
+                    <div class="mt-3 space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-pust-amber text-slate-950 flex items-center justify-center text-xs font-bold">1</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-200">Submit a request</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-white/75 border border-slate-200/80 text-slate-950 flex items-center justify-center text-xs font-bold dark:bg-white/15 dark:border-white/15 dark:text-white">2</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-200">Assigned to the right department</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-white/75 border border-slate-200/80 text-slate-950 flex items-center justify-center text-xs font-bold dark:bg-white/15 dark:border-white/15 dark:text-white">3</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-200">Track it through resolution</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,8 +82,8 @@ require __DIR__ . '/includes/templates/public-header.php';
 <section class="how-it-works max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
     <div class="text-center max-w-2xl mx-auto mb-14">
         <p class="text-sm font-semibold uppercase tracking-wider text-pust-amber mb-2">Simple process</p>
-        <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">How It Works</h2>
-        <p class="text-slate-600 leading-relaxed">From sign-up to resolution — three clear steps to get the support you need across campus.</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">How support flows</h2>
+        <p class="text-slate-600 leading-relaxed">From sign-up to resolution — three clear steps that keep every campus request visible, routed, and handled.</p>
     </div>
     <div class="grid md:grid-cols-3 gap-8 lg:gap-10">
         <article class="how-it-works-step group relative bg-white rounded-2xl p-8 border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-pust-amber/30 transition-all duration-300 text-center">
@@ -101,8 +138,8 @@ require __DIR__ . '/includes/templates/public-header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-14">
             <p class="text-sm font-semibold uppercase tracking-wider text-pust-amber mb-2">Who we serve</p>
-            <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">Help Desk Supported</h2>
-            <p class="text-slate-600 leading-relaxed">One platform for every member of the PUST community — submit requests, track progress, and connect with the right teams from a single, secure help desk.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">Who it serves</h2>
+            <p class="text-slate-600 leading-relaxed">One platform for every member of the PUST community — submit requests, track progress, and connect with the right team from a single secure help desk.</p>
         </div>
         <div class="grid md:grid-cols-3 gap-8 lg:gap-10">
             <article class="helpdesk-supported-card group bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 hover:shadow-xl hover:border-pust-amber/30 transition-all duration-300">
@@ -157,8 +194,8 @@ require __DIR__ . '/includes/templates/public-header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-12">
             <p class="text-sm font-semibold uppercase tracking-wider text-pust-amber mb-2">Get started</p>
-            <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">Registration &amp; Support Categories</h2>
-            <p class="text-slate-600 leading-relaxed">Students register under their faculty; staff link to a help desk department. Submit tickets under the right category when you need support.</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-pust-navy mb-4">Choose the right account path</h2>
+            <p class="text-slate-600 leading-relaxed">Students register under their faculty; staff link to a help desk department. Pick the right account type and support category from the start.</p>
         </div>
 
         <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-16">
