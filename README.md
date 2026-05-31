@@ -2,6 +2,31 @@
 
 A focused PHP/MySQL support ticket system for PUST University. The app helps students and staff submit tickets, track progress, receive updates, communicate with administrators, and manage support services through secure role-based dashboards.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/images/readme/01-home.png" alt="Home page" width="100%">
+      <br><sub>Home page</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/readme/02-login.png" alt="Login page" width="100%">
+      <br><sub>Login page</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/images/readme/03-register.png" alt="Register page" width="100%">
+      <br><sub>Registration page</sub>
+    </td>
+    <td align="center">
+      <img src="assets/images/readme/04-contact.png" alt="Contact page" width="100%">
+      <br><sub>Contact page</sub>
+    </td>
+  </tr>
+</table>
+
 ## Core Features
 
 - Student, staff, lecturer, and admin dashboards
